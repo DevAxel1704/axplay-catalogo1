@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>AxPlay STUDIO</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+  <script type="module" src="./firebase-config.js"></script>
+  <style>
+    body { background: #111; color: white; font-family: sans-serif; padding: 20px; }
+    .categoria { margin-top: 30px; }
+    .pelicula { background: #222; padding: 10px; border-radius: 8px; width: 200px; margin-bottom: 15px; }
+    .pelicula img { width: 100%; border-radius: 5px; }
+    .pelicula h3 { font-size: 16px; margin: 10px 0; }
+    iframe { width: 100%; height: 150px; border: none; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>🎬 Catálogo AxPlay STUDIO</h1>
+  <p>Cargando películas...</p>
+  <div id="contenido"></div>
+</body>
+</html>
