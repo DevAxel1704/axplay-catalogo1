@@ -8,6 +8,39 @@
   <title>AxPlay STUDIO</title>
   <link rel="manifest" href="manifest.json" />
   <style>
+    #installContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+}
+
+#installBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #00ffd5;
+  color: #000;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#installBtn:hover {
+  background-color: #00e6c2;
+}
+
+.logo-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+}
+    
     * {
       margin: 0;
       padding: 0;
@@ -309,5 +342,11 @@
       btn.style.display = 'none';
     });
   </script>
+  <div id="installContainer" style="display: none;">
+  <button id="installBtn">
+    <img src="logoAxplay.png" alt="AxPlay Logo" class="logo-btn" />
+    Instalar AxPlay
+  </button>
+  </div>
 </body>
 </html>
