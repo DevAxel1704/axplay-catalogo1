@@ -1,47 +1,249 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  ...
-  <!-- Asegurate que este bloque tengas bien -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#00ffd5">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="logoAxplay.png">
   <title>AxPlay STUDIO</title>
-  <!-- estilos... -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0d0d0d; color: #fff; }
+    header { background: #000; padding: 15px; text-align: center; border-bottom: 2px solid #00ffd5; }
+    header img { height: 60px; }
+    nav { margin-top: 10px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+    nav a { color: #00ffd5; font-weight: bold; text-decoration: none; }
+    nav a:hover { color: #ff00aa; }
+
+    .busqueda { text-align: center; padding: 20px; }
+    .busqueda input {
+      padding: 10px; width: 80%; max-width: 400px; border-radius: 8px;
+      border: 1px solid #00ffd5; background: #121212; color: #fff;
+    }
+
+    section.categoria { margin: 30px auto; max-width: 1200px; padding: 0 20px; }
+    section.categoria h2 {
+      color: #00ffd5; font-size: 22px; margin-bottom: 15px;
+      animation: fadeIn 1s ease;
+    }
+
+    .peliculas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+      animation: fadeIn 1s ease;
+    }
+
+    .tarjeta {
+      background: #1c1c1c; border: 2px solid #00ffd5; border-radius: 12px;
+      overflow: hidden; text-align: center; cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .tarjeta:hover { transform: scale(1.05); }
+    .tarjeta img {
+      width: 100%; height: 220px; object-fit: cover; transition: opacity 0.5s;
+    }
+
+    .titulo { padding: 10px; font-weight: bold; color: #00ffd5; }
+    .btn-lista {
+      background: #00ffd5; color: #000; border: none; padding: 6px 10px;
+      margin: 10px auto; border-radius: 8px; cursor: pointer; font-weight: bold;
+    }
+
+    #mensaje, #toast {
+      position: fixed; right: 20px; background: #00ffd5; color: #000;
+      padding: 10px 20px; border-radius: 10px; font-weight: bold;
+      display: none; z-index: 1000;
+    }
+
+    #mensaje { top: 20px; }
+    #toast { bottom: 20px; }
+
+    iframe {
+      width: 100%; max-width: 800px; height: 300px;
+      border: none; margin: 30px auto; display: block; border-radius: 12px;
+    }
+
+    #installContainer {
+      position: fixed; bottom: 20px; left: 20px; z-index: 999;
+      display: none;
+    }
+
+    #installBtn {
+      display: flex; align-items: center; gap: 10px;
+      background-color: #00ffd5; color: #000; border: none;
+      padding: 12px 20px; border-radius: 10px; font-weight: bold;
+      font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      cursor: pointer; transition: 0.3s;
+    }
+
+    #installBtn:hover { background-color: #00e6c2; }
+    .logo-btn { width: 28px; height: 28px; border-radius: 5px; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
 </head>
 <body>
-  ...
+
+  <header>
+    <img src="Axplay.png" alt="AxPlay STUDIO Logo">
+    <nav>
+      <a href="#">Inicio</a>
+      <a href="#mi-lista" onclick="mostrarLista()">Mi Lista</a>
+      <a href="zona-vip.html">Zona VIP 🔞</a>
+    </nav>
+  </header>
+
+  <div class="busqueda">
+    <input type="text" id="busqueda" placeholder="🔍 Buscar películas..." oninput="buscarPeliculas()" />
+  </div>
+
+  <main id="contenedor-peliculas"></main>
+
+  <iframe id="player" style="display:none;" allowfullscreen></iframe>
+  <div id="mensaje"></div>
+  <div id="toast">✅ App lista para instalar</div>
+
+  <div id="installContainer">
+    <button id="installBtn">
+      <img src="logoAxplay.png" alt="AxPlay Logo" class="logo-btn" />
+      Instalar AxPlay
+    </button>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "...",
-      authDomain: "axplaystudio-ef5c7.firebaseapp.com",
-      projectId: "axplaystudio-ef5c7",
-      storageBucket: "axplaystudio-ef5c7.appspot.com",
-      messagingSenderId: "786631190185",
-      appId: "1:786631190185:web:6f4b3907c3545339676bb8"
-    };
+  apiKey: "AIzaSy…",
+  authDomain: "axplaystudio-ef5c7.firebaseapp.com",
+  projectId: "axplaystudio-ef5c7",
+  storageBucket: "axplaystudio-ef5c7.appspot.com",
+  messagingSenderId: "786631190185",
+  appId: "1:786631190185:web:6f4b3907c3545339676bb8"
+};
+
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    ...
+
+    let todasPeliculas = [];
+    let modoLista = false;
+
     function cargarPeliculas() {
-      db.collection("peliculas").get()
-        .then(snapshot => {
-          if (snapshot.empty) {
-            document.getElementById("contenedor-peliculas").innerHTML =
-              "<p style='text-align:center;color:#ccc;'>No hay películas aún.</p>";
-          }
-          // resto del código...
-        })
-        .catch(err => {
-          console.error(err);
-          document.getElementById("contenedor-peliculas").innerHTML =
-            "<p style='text-align:center;color:#f00;'>Error cargando películas.</p>";
+      db.collection("peliculas").get().then(snapshot => {
+        const categorias = {};
+        snapshot.forEach(doc => {
+          const p = doc.data();
+          if (!categorias[p.categoria]) categorias[p.categoria] = [];
+          categorias[p.categoria].push(p);
         });
+        mostrarPorCategorias(categorias);
+        todasPeliculas = Object.values(categorias).flat();
+      }).catch(err => {
+        document.getElementById("contenedor-peliculas").innerHTML = "<p style='text-align:center;color:#ccc;'>⚠️ No se pudieron cargar las películas.</p>";
+      });
     }
+
+    function mostrarPorCategorias(categorias) {
+      const contenedor = document.getElementById("contenedor-peliculas");
+      contenedor.innerHTML = "";
+      const orden = {
+        "acción": "🎬 Acción",
+        "terror": "👻 Terror",
+        "ciencia ficción": "🤖 Ciencia Ficción",
+        "comedia": "😂 Comedia",
+        "animación": "👨‍👩‍👧‍👦 Animación",
+        "documental": "🎥 Documental",
+        "adultos": "🔞 Adultos"
+      };
+
+      for (const key in orden) {
+        if (categorias[key]) {
+          const section = document.createElement("section");
+          section.className = "categoria";
+          section.innerHTML = `<h2>${orden[key]}</h2><div class="peliculas-grid"></div>`;
+          categorias[key].forEach(p => {
+            const div = document.createElement("div");
+            div.className = "tarjeta";
+            div.innerHTML = `
+              <img src="${p.img}" alt="${p.titulo}" onclick="reproducir('${p.src}')">
+              <div class="titulo">${p.titulo}</div>
+              <button class="btn-lista" onclick="${modoLista ? `quitarDeLista('${p.titulo}')` : `agregarLista('${p.titulo}', '${p.src}', '${p.img}')`}">
+                ${modoLista ? 'Quitar de Mi Lista' : '+ Mi Lista'}
+              </button>`;
+            section.querySelector(".peliculas-grid").appendChild(div);
+          });
+          contenedor.appendChild(section);
+        }
+      }
+    }
+
+    function buscarPeliculas() {
+      const texto = document.getElementById("busqueda").value.toLowerCase();
+      const filtradas = todasPeliculas.filter(p => p.titulo.toLowerCase().includes(texto));
+      mostrarPorCategorias({ buscador: filtradas });
+    }
+
+    function reproducir(url) {
+      const iframe = document.getElementById("player");
+      iframe.src = url;
+      iframe.style.display = "block";
+      iframe.scrollIntoView({ behavior: "smooth" });
+    }
+
+    function agregarLista(titulo, src, img) {
+      const lista = JSON.parse(localStorage.getItem('miLista')) || [];
+      if (!lista.find(p => p.titulo === titulo)) {
+        lista.push({ titulo, src, img });
+        localStorage.setItem('miLista', JSON.stringify(lista));
+        mostrarMensaje("✅ Añadido a Mi Lista");
+      }
+    }
+
+    function quitarDeLista(titulo) {
+      let lista = JSON.parse(localStorage.getItem('miLista')) || [];
+      lista = lista.filter(p => p.titulo !== titulo);
+      localStorage.setItem('miLista', JSON.stringify(lista));
+      mostrarMensaje("❌ Quitado de Mi Lista");
+      mostrarLista();
+    }
+
+    function mostrarLista() {
+      modoLista = true;
+      const lista = JSON.parse(localStorage.getItem('miLista')) || [];
+      mostrarPorCategorias({ "Mi Lista": lista });
+    }
+
+    function mostrarMensaje(texto) {
+      const msg = document.getElementById("mensaje");
+      msg.textContent = texto;
+      msg.style.display = "block";
+      setTimeout(() => msg.style.display = "none", 2000);
+    }
+
+    // Instalación PWA
+    let deferredPrompt;
+    const btn = document.getElementById("installBtn");
+    const cont = document.getElementById("installContainer");
+    const toast = document.getElementById("toast");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      cont.style.display = "block";
+      toast.style.display = "block";
+      setTimeout(() => toast.style.display = "none", 3000);
+    });
+
+    btn.addEventListener("click", () => {
+      deferredPrompt.prompt();
+      cont.style.display = "none";
+    });
+
     window.addEventListener("load", cargarPeliculas);
-    ...
   </script>
 </body>
 </html>
