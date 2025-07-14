@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | AxPlay STUDIO</title>
+  <style>
+    body {
+      background: #000;
+      color: #00ffd5;
+      font-family: Arial;
+      text-align: center;
+      padding: 30px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      background: #00ffd5;
+      color: #000;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Login AxPlay STUDIO</h1>
+  <input type="email" id="email" placeholder="Correo"><br>
+  <input type="password" id="pass" placeholder="Contraseña"><br>
+  <button onclick="login()" id="loginBtn">Ingresar</button>
+  <p id="error" style="color:red;"></p>
+
+  <!-- Scripts de Firebase en orden correcto -->
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    function login() {
+      const email = document.getElementById('email').value.trim();
+      const pass = document.getElementById('pass').value.trim();
+      const errorMsg = document.getElementById('error');
+      const btn = document.getElementById('loginBtn');
+
+      errorMsg.innerText = "";
+
+      if (!email || !pass) {
+        errorMsg.innerText = "Por favor completa todos los campos.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "Cargando...";
+
+      firebase.auth().signInWithEmailAndPassword(email, pass)
+        .then(() => {
+          window.location.href = "admin.html"; // o index.html si querés
+        })
+        .catch(err => {
+          errorMsg.innerText = "Error: " + err.message;
+          btn.disabled = false;
+          btn.innerText = "Ingresar";
+        });
+    }
+  </script>
+</body>
+</html>
