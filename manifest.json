@@ -1,19 +1,19 @@
 {
   "name": "AxPlay STUDIO",
   "short_name": "AxPlay",
-  "start_url": "index.html",
+  "start_url": "/?source=pwa",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#00ffd5",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "logoAxplay.png",
+      "src": "Axplay.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "logoAxplay.png",
+      "src": "Axplay.png",
       "sizes": "512x512",
       "type": "image/png"
     }
